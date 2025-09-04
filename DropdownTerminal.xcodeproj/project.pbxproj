@@ -7,23 +7,24 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A1234567890ABCDEF001 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF000 /* AppDelegate.swift */; };
-		A1234567890ABCDEF003 /* MenuBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF002 /* MenuBarController.swift */; };
-		A1234567890ABCDEF005 /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF004 /* SettingsManager.swift */; };
-		A1234567890ABCDEF007 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF006 /* Assets.xcassets */; };
+		D01A1B2C3D4E5F60701A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D01A1B2C3D4E5F60700A /* AppDelegate.swift */; };
+		D01A1B2C3D4E5F60703A /* MenuBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D01A1B2C3D4E5F60702A /* MenuBarController.swift */; };
+		D01A1B2C3D4E5F60705A /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D01A1B2C3D4E5F60704A /* SettingsManager.swift */; };
+		D01A1B2C3D4E5F60707A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D01A1B2C3D4E5F60706A /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		A1234567890ABCDEF999 /* DropdownTerminal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DropdownTerminal.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A1234567890ABCDEF000 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF002 /* MenuBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarController.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF004 /* SettingsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManager.swift; sourceTree = "<group>"; };
-		A1234567890ABCDEF006 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		A1234567890ABCDEF008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D01A1B2C3D4E5F60799A /* DropdownTerminal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DropdownTerminal.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D01A1B2C3D4E5F60700A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		D01A1B2C3D4E5F60702A /* MenuBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarController.swift; sourceTree = "<group>"; };
+		D01A1B2C3D4E5F60704A /* SettingsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManager.swift; sourceTree = "<group>"; };
+		D01A1B2C3D4E5F60706A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		D01A1B2C3D4E5F60708A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D01A1B2C3D4E5F60709A /* DropdownTerminal.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DropdownTerminal.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		A1234567890ABCDEF996 /* Frameworks */ = {
+		D01A1B2C3D4E5F60796A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -33,30 +34,31 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A1234567890ABCDEF990 = {
+		D01A1B2C3D4E5F60790A = {
 			isa = PBXGroup;
 			children = (
-				A1234567890ABCDEF991 /* DropdownTerminal */,
-				A1234567890ABCDEF998 /* Products */,
+				D01A1B2C3D4E5F60791A /* DropdownTerminal */,
+				D01A1B2C3D4E5F60798A /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		A1234567890ABCDEF991 /* DropdownTerminal */ = {
+		D01A1B2C3D4E5F60791A /* DropdownTerminal */ = {
 			isa = PBXGroup;
 			children = (
-				A1234567890ABCDEF000 /* AppDelegate.swift */,
-				A1234567890ABCDEF002 /* MenuBarController.swift */,
-				A1234567890ABCDEF004 /* SettingsManager.swift */,
-				A1234567890ABCDEF006 /* Assets.xcassets */,
-				A1234567890ABCDEF008 /* Info.plist */,
+				D01A1B2C3D4E5F60700A /* AppDelegate.swift */,
+				D01A1B2C3D4E5F60702A /* MenuBarController.swift */,
+				D01A1B2C3D4E5F60704A /* SettingsManager.swift */,
+				D01A1B2C3D4E5F60706A /* Assets.xcassets */,
+				D01A1B2C3D4E5F60708A /* Info.plist */,
+				D01A1B2C3D4E5F60709A /* DropdownTerminal.entitlements */,
 			);
 			path = DropdownTerminal;
 			sourceTree = "<group>";
 		};
-		A1234567890ABCDEF998 /* Products */ = {
+		D01A1B2C3D4E5F60798A /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A1234567890ABCDEF999 /* DropdownTerminal.app */,
+				D01A1B2C3D4E5F60799A /* DropdownTerminal.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -64,13 +66,13 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A1234567890ABCDEF997 /* DropdownTerminal */ = {
+		D01A1B2C3D4E5F60797A /* DropdownTerminal */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A1234567890ABCDEF992 /* Build configuration list for PBXNativeTarget "DropdownTerminal" */;
+			buildConfigurationList = D01A1B2C3D4E5F60792A /* Build configuration list for PBXNativeTarget "DropdownTerminal" */;
 			buildPhases = (
-				A1234567890ABCDEF994 /* Sources */,
-				A1234567890ABCDEF996 /* Frameworks */,
-				A1234567890ABCDEF995 /* Resources */,
+				D01A1B2C3D4E5F60794A /* Sources */,
+				D01A1B2C3D4E5F60796A /* Frameworks */,
+				D01A1B2C3D4E5F60795A /* Resources */,
 			);
 			buildRules = (
 			);
@@ -78,25 +80,26 @@
 			);
 			name = DropdownTerminal;
 			productName = DropdownTerminal;
-			productReference = A1234567890ABCDEF999 /* DropdownTerminal.app */;
+			productReference = D01A1B2C3D4E5F60799A /* DropdownTerminal.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		A1234567890ABCDEF993 /* Project object */ = {
+		D01A1B2C3D4E5F60793A /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1500;
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
-					A1234567890ABCDEF997 = {
+					D01A1B2C3D4E5F60797A = {
 						CreatedOnToolsVersion = 15.0;
+						LastSwiftMigration = 1500;
 					};
 				};
 			};
-			buildConfigurationList = A1234567890ABCDEF991 /* Build configuration list for PBXProject "DropdownTerminal" */;
+			buildConfigurationList = D01A1B2C3D4E5F60801A /* Build configuration list for PBXProject "DropdownTerminal" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -104,42 +107,42 @@
 				en,
 				Base,
 			);
-			mainGroup = A1234567890ABCDEF990;
-			productRefGroup = A1234567890ABCDEF998 /* Products */;
+			mainGroup = D01A1B2C3D4E5F60790A;
+			productRefGroup = D01A1B2C3D4E5F60798A /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A1234567890ABCDEF997 /* DropdownTerminal */,
+				D01A1B2C3D4E5F60797A /* DropdownTerminal */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		A1234567890ABCDEF995 /* Resources */ = {
+		D01A1B2C3D4E5F60795A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1234567890ABCDEF007 /* Assets.xcassets in Resources */,
+				D01A1B2C3D4E5F60707A /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		A1234567890ABCDEF994 /* Sources */ = {
+		D01A1B2C3D4E5F60794A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1234567890ABCDEF001 /* AppDelegate.swift in Sources */,
-				A1234567890ABCDEF003 /* MenuBarController.swift in Sources */,
-				A1234567890ABCDEF005 /* SettingsManager.swift in Sources */,
+				D01A1B2C3D4E5F60701A /* AppDelegate.swift in Sources */,
+				D01A1B2C3D4E5F60703A /* MenuBarController.swift in Sources */,
+				D01A1B2C3D4E5F60705A /* SettingsManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		A1234567890ABCDEF989 /* Debug */ = {
+		D01A1B2C3D4E5F60800A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -202,7 +205,7 @@
 			};
 			name = Debug;
 		};
-		A1234567890ABCDEF988 /* Release */ = {
+		D01A1B2C3D4E5F60802A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -257,7 +260,7 @@
 			};
 			name = Release;
 		};
-		A1234567890ABCDEF987 /* Debug */ = {
+		D01A1B2C3D4E5F60803A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -284,7 +287,7 @@
 			};
 			name = Debug;
 		};
-		A1234567890ABCDEF986 /* Release */ = {
+		D01A1B2C3D4E5F60804A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -314,25 +317,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A1234567890ABCDEF991 /* Build configuration list for PBXProject "DropdownTerminal" */ = {
+		D01A1B2C3D4E5F60801A /* Build configuration list for PBXProject "DropdownTerminal" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A1234567890ABCDEF989 /* Debug */,
-				A1234567890ABCDEF988 /* Release */,
+				D01A1B2C3D4E5F60800A /* Debug */,
+				D01A1B2C3D4E5F60802A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A1234567890ABCDEF992 /* Build configuration list for PBXNativeTarget "DropdownTerminal" */ = {
+		D01A1B2C3D4E5F60792A /* Build configuration list for PBXNativeTarget "DropdownTerminal" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A1234567890ABCDEF987 /* Debug */,
-				A1234567890ABCDEF986 /* Release */,
+				D01A1B2C3D4E5F60803A /* Debug */,
+				D01A1B2C3D4E5F60804A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = A1234567890ABCDEF993 /* Project object */;
+	rootObject = D01A1B2C3D4E5F60793A /* Project object */;
 }
