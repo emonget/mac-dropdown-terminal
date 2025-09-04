@@ -32,17 +32,23 @@ jobs:
         xcodebuild -project DropdownTerminal.xcodeproj \
                    -target DropdownTerminal \
                    -configuration Release \
-                   -derivedDataPath ./build \
                    DEVELOPMENT_TEAM="" \
                    CODE_SIGN_IDENTITY="-" \
                    CODE_SIGNING_REQUIRED=NO \
+                   CONFIGURATION_BUILD_DIR="./build/Release" \
                    build
     
-    - name: Locate built app
+    - name: Verify built app
       run: |
-        find ./build -name "*.app" -type d
-        mkdir -p ./build/Release
-        cp -R ./build/Build/Products/Release/DropdownTerminal.app ./build/Release/
+        ls -la ./build/Release/
+        if [ -d "./build/Release/DropdownTerminal.app" ]; then
+          echo "✅ App built successfully"
+          ls -la "./build/Release/DropdownTerminal.app/Contents/"
+        else
+          echo "❌ App not found"
+          find . -name "*.app" -type d
+          exit 1
+        fi
     
     - name: Create DMG
       run: |
@@ -56,7 +62,7 @@ jobs:
         name: DropdownTerminal-${{ github.sha }}
         path: |
           DropdownTerminal.dmg
-          ./build/Release/DropdownTerminal.app
+          build/Release/DropdownTerminal.app
     
     - name: Upload Release Asset
       if: github.event_name == 'release'
