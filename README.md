@@ -109,8 +109,8 @@ The project includes a GitHub Actions workflow that automatically:
 ## Requirements
 
 - **System**: macOS 13.0 or later
+- **Architecture**: Apple Silicon (M1/M2/M3/M4) Macs only
 - **Permissions**: The app requires accessibility permissions to control other applications
-- **Architecture**: Universal binary (Intel and Apple Silicon)
 
 ## Permissions
 

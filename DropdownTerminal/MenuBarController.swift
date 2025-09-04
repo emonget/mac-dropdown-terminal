@@ -124,7 +124,7 @@ class MenuBarController: NSObject {
     }
     
     private func moveAppWindowsToCurrentSpace(_ app: NSRunningApplication) {
-        guard let appElement = AXUIElementCreateApplication(app.processIdentifier) else { return }
+        let appElement = AXUIElementCreateApplication(app.processIdentifier)
         
         var windowList: CFTypeRef?
         let result = AXUIElementCopyAttributeValue(appElement, kAXWindowsAttribute as CFString, &windowList)
@@ -164,7 +164,7 @@ class MenuBarController: NSObject {
     }
     
     private func getAppMainWindow(_ app: NSRunningApplication) -> AXUIElement? {
-        guard let appElement = AXUIElementCreateApplication(app.processIdentifier) else { return nil }
+        let appElement = AXUIElementCreateApplication(app.processIdentifier)
         
         var mainWindow: CFTypeRef?
         let result = AXUIElementCopyAttributeValue(appElement, kAXMainWindowAttribute as CFString, &mainWindow)
@@ -186,16 +186,16 @@ class MenuBarController: NSObject {
     
     private func getFrontmostWindow() -> AXUIElement? {
         let systemWideElement = AXUIElementCreateSystemWide()
-        var frontmostApp: AXUIElement?
+        var frontmostApp: CFTypeRef?
         
-        let result = AXUIElementCopyAttributeValue(systemWideElement, kAXFocusedApplicationAttribute as CFString, UnsafeMutablePointer<CFTypeRef?>(&frontmostApp))
+        let result = AXUIElementCopyAttributeValue(systemWideElement, kAXFocusedApplicationAttribute as CFString, &frontmostApp)
         
         if result == .success, let app = frontmostApp {
-            var frontmostWindow: AXUIElement?
-            let windowResult = AXUIElementCopyAttributeValue(app, kAXFocusedWindowAttribute as CFString, UnsafeMutablePointer<CFTypeRef?>(&frontmostWindow))
+            var frontmostWindow: CFTypeRef?
+            let windowResult = AXUIElementCopyAttributeValue(app as! AXUIElement, kAXFocusedWindowAttribute as CFString, &frontmostWindow)
             
             if windowResult == .success {
-                return frontmostWindow
+                return (frontmostWindow as! AXUIElement)
             }
         }
         
