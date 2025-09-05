@@ -278,7 +278,7 @@ class MenuBarController: NSObject {
     
     private func getWindowID(_ window: AXUIElement) -> CGWindowID {
         var windowID: CGWindowID = 0
-        _AXUIElementGetWindow(window, &windowID)
+        let _ = _AXUIElementGetWindow(window, &windowID)
         return windowID
     }
     
@@ -334,10 +334,10 @@ class MenuBarController: NSObject {
     private func updateTerminalVisibilityState() {
         let appName = settingsManager.getSelectedApp()
         if let app = findRunningApp(appName) {
-            isTerminalVisible = isAppVisible(app)
-            logger.info("🔍 Initial terminal visibility state: \(isTerminalVisible)")
+            self.isTerminalVisible = isAppVisible(app)
+            logger.info("🔍 Initial terminal visibility state: \(self.isTerminalVisible)")
         } else {
-            isTerminalVisible = false
+            self.isTerminalVisible = false
             logger.info("🔍 Terminal not running, setting visibility to false")
         }
     }
@@ -349,7 +349,7 @@ class MenuBarController: NSObject {
         }
         
         let iconName = isTerminalVisible ? activeIcon : inactiveIcon
-        var image = NSImage(systemSymbolName: iconName, accessibilityDescription: nil)
+        let image = NSImage(systemSymbolName: iconName, accessibilityDescription: nil)
         
         // Fallback to text if SF Symbols not available
         if image == nil {
