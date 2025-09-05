@@ -211,10 +211,18 @@ class MenuBarController: NSObject {
         guard let button = statusItem.button else { return }
         
         let iconName = isTerminalVisible ? activeIcon : inactiveIcon
-        let image = NSImage(systemSymbolName: iconName, accessibilityDescription: nil)
-        image?.size = NSSize(width: 18, height: 18)
+        var image = NSImage(systemSymbolName: iconName, accessibilityDescription: nil)
         
-        button.image = image
+        // Fallback to text if SF Symbols not available
+        if image == nil {
+            let title = isTerminalVisible ? "●" : "○"
+            button.title = title
+            button.image = nil
+        } else {
+            image?.size = NSSize(width: 18, height: 18)
+            button.image = image
+            button.title = ""
+        }
     }
     
     @objc private func showAppSelection() {
