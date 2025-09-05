@@ -64,11 +64,27 @@ TMP_DIR=$(mktemp -d)
 cd "$TMP_DIR"
 
 echo "⬇️  Downloading latest build..."
-curl -fsSL -H "Accept: application/vnd.github.v3+json" "$DOWNLOAD_URL" -o artifact.zip
-
-echo "📂 Extracting..."
-unzip -q artifact.zip
-rm artifact.zip
+if [ "$BRANCH" = "dev" ]; then
+  # For dev branch, get latest dev release
+  RELEASE_API="https://api.github.com/repos/${REPO}/releases"
+  RELEASE_TAG=$(curl -fsSL "$RELEASE_API" | sed -n 's/.*"tag_name": "dev-\([^"]*\)".*/dev-\1/p' | head -1)
+  
+  if [ -z "$RELEASE_TAG" ]; then
+    echo "❌ No dev releases found. Using artifacts fallback..."
+    curl -fsSL -H "Accept: application/vnd.github.v3+json" "$DOWNLOAD_URL" -o artifact.zip
+    unzip -q artifact.zip
+    rm artifact.zip
+  else
+    echo "📦 Using release: $RELEASE_TAG"
+    DMG_URL="https://github.com/${REPO}/releases/download/${RELEASE_TAG}/DropdownTerminal.dmg"
+    curl -fsSL "$DMG_URL" -o DropdownTerminal.dmg
+  fi
+else
+  # For other branches, use artifacts
+  curl -fsSL -H "Accept: application/vnd.github.v3+json" "$DOWNLOAD_URL" -o artifact.zip
+  unzip -q artifact.zip
+  rm artifact.zip
+fi
 
 echo "🛑 Stopping existing app..."
 pkill -f "$APP_NAME" 2>/dev/null || true

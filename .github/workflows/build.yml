@@ -65,6 +65,27 @@ jobs:
           DropdownTerminal.dmg
           build/Release/DropdownTerminal.app
     
+    - name: Create Dev Release
+      if: github.ref == 'refs/heads/dev'
+      uses: ncipollo/release-action@v1
+      with:
+        tag: dev-${{ github.sha }}
+        name: "Dev Build - ${{ github.sha }}"
+        body: |
+          🚧 **Development Build**
+          
+          Commit: ${{ github.sha }}
+          Branch: dev
+          
+          **Install:**
+          ```bash
+          curl -fsSL https://github.com/emonget/mac-dropdown-terminal/releases/download/dev-${{ github.sha }}/DropdownTerminal.dmg -o DropdownTerminal.dmg && open DropdownTerminal.dmg
+          ```
+        artifacts: "DropdownTerminal.dmg"
+        prerelease: true
+        allowUpdates: true
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
     - name: Upload Release Asset
       if: github.event_name == 'release'
       uses: actions/upload-release-asset@v1
