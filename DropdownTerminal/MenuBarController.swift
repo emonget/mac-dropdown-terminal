@@ -35,6 +35,7 @@ class MenuBarController: NSObject {
         self.settingsManager = settingsManager
         logger.info("🎛️ Initializing menu bar controller...")
         setupMenuBar()
+        updateTerminalVisibilityState()
         updateMenuBarIcon()
         logger.info("✅ Menu bar controller ready")
     }
@@ -92,22 +93,79 @@ class MenuBarController: NSObject {
     
     @objc private func toggleTerminal() {
         let appName = settingsManager.getSelectedApp()
+        logger.info("🔄 Toggling terminal app: \(appName)")
         
-        if let app = NSWorkspace.shared.runningApplications.first(where: { $0.localizedName == appName || $0.bundleIdentifier?.contains(appName.lowercased()) == true }) {
-            if isTerminalVisible {
+        if let app = findRunningApp(appName) {
+            logger.info("📱 Found running app: \(app.localizedName ?? "Unknown")")
+            if isAppVisible(app) {
+                logger.info("👁️ App is visible, hiding it")
                 hideApp(app)
+                isTerminalVisible = false
             } else {
+                logger.info("👻 App is hidden, showing it")
                 showApp(app)
+                isTerminalVisible = true
             }
         } else {
+            logger.info("🚀 App not running, launching it")
             launchApp(appName)
+            isTerminalVisible = true
         }
         
-        isTerminalVisible.toggle()
         updateMenuBarIcon()
     }
     
+    private func findRunningApp(_ appName: String) -> NSRunningApplication? {
+        let normalizedAppName = appName.lowercased()
+        
+        // First try exact match by localized name
+        if let app = NSWorkspace.shared.runningApplications.first(where: { 
+            $0.localizedName?.lowercased() == normalizedAppName 
+        }) {
+            return app
+        }
+        
+        // Then try bundle identifier contains
+        if let app = NSWorkspace.shared.runningApplications.first(where: { 
+            $0.bundleIdentifier?.lowercased().contains(normalizedAppName) == true 
+        }) {
+            return app
+        }
+        
+        // Finally try partial name match
+        return NSWorkspace.shared.runningApplications.first(where: { 
+            $0.localizedName?.lowercased().contains(normalizedAppName) == true 
+        })
+    }
+    
+    private func isAppVisible(_ app: NSRunningApplication) -> Bool {
+        // Check if app is hidden
+        if app.isHidden {
+            return false
+        }
+        
+        // Check if app has visible windows
+        let appElement = AXUIElementCreateApplication(app.processIdentifier)
+        var windowList: CFTypeRef?
+        let result = AXUIElementCopyAttributeValue(appElement, kAXWindowsAttribute as CFString, &windowList)
+        
+        if result == .success, let windows = windowList as? [AXUIElement], !windows.isEmpty {
+            // Check if any window is visible (not minimized)
+            for window in windows {
+                var minimized: CFTypeRef?
+                let minResult = AXUIElementCopyAttributeValue(window, kAXMinimizedAttribute as CFString, &minimized)
+                if minResult == .success, let isMinimized = minimized as? Bool, !isMinimized {
+                    return true
+                }
+            }
+        }
+        
+        return false
+    }
+    
     private func showApp(_ app: NSRunningApplication) {
+        logger.info("📺 Showing app: \(app.localizedName ?? "Unknown")")
+        
         // First, get all windows for this app and move them to current space
         moveAppWindowsToCurrentSpace(app)
         
@@ -126,41 +184,84 @@ class MenuBarController: NSObject {
     }
     
     private func launchApp(_ appName: String) {
+        logger.info("🚀 Launching app: \(appName)")
         let workspace = NSWorkspace.shared
         
+        // Try to launch the app
+        let success: Bool
         if appName.lowercased().contains("terminal") {
-            workspace.launchApplication("Terminal")
+            success = workspace.launchApplication("Terminal")
         } else {
-            workspace.launchApplication(appName)
+            success = workspace.launchApplication(appName)
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.isTerminalVisible = true
-            self.updateMenuBarIcon()
+        if !success {
+            logger.error("❌ Failed to launch app: \(appName)")
+            return
+        }
+        
+        // Wait for app to start and then move it to current space
+        waitForAppToLaunch(appName, attempts: 10)
+    }
+    
+    private func waitForAppToLaunch(_ appName: String, attempts: Int) {
+        if attempts <= 0 {
+            logger.error("❌ Timeout waiting for app to launch: \(appName)")
+            return
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            if let app = self.findRunningApp(appName) {
+                self.logger.info("✅ App launched successfully: \(app.localizedName ?? "Unknown")")
+                // Wait a bit more for windows to be created
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.showApp(app)
+                }
+            } else {
+                self.logger.info("⏳ Still waiting for app to launch... (\(attempts) attempts left)")
+                self.waitForAppToLaunch(appName, attempts: attempts - 1)
+            }
         }
     }
     
     private func moveAppWindowsToCurrentSpace(_ app: NSRunningApplication) {
+        logger.info("🔄 Moving app windows to current space for: \(app.localizedName ?? "Unknown")")
+        
         let appElement = AXUIElementCreateApplication(app.processIdentifier)
         
         var windowList: CFTypeRef?
         let result = AXUIElementCopyAttributeValue(appElement, kAXWindowsAttribute as CFString, &windowList)
         
         if result == .success, let windows = windowList as? [AXUIElement] {
-            for window in windows {
+            logger.info("📱 Found \(windows.count) windows to move")
+            for (index, window) in windows.enumerated() {
+                logger.info("🔄 Moving window \(index + 1)/\(windows.count)")
                 moveWindowToCurrentSpace(window)
             }
+        } else {
+            logger.warning("⚠️ Could not get window list for app, result: \(result.rawValue)")
         }
     }
     
     private func moveWindowToCurrentSpace(_ window: AXUIElement) {
         // Get current space ID
-        guard let currentSpaceInfo = getCurrentSpaceInfo() else { return }
+        guard let currentSpaceID = getCurrentSpaceInfo() else { 
+            logger.error("❌ Could not get current space info")
+            return 
+        }
         
         // Move window to current space using private APIs
         let windowID = getWindowID(window)
         if windowID > 0 {
-            moveWindowToSpace(windowID: windowID, spaceID: currentSpaceInfo)
+            logger.info("🏠 Moving window \(windowID) to space \(currentSpaceID)")
+            let result = moveWindowToSpace(windowID: windowID, spaceID: currentSpaceID)
+            if result == .success {
+                logger.info("✅ Successfully moved window to current space")
+            } else {
+                logger.error("❌ Failed to move window to current space, error: \(result.rawValue)")
+            }
+        } else {
+            logger.warning("⚠️ Could not get window ID for window")
         }
     }
     
@@ -175,9 +276,9 @@ class MenuBarController: NSObject {
         return windowID
     }
     
-    private func moveWindowToSpace(windowID: CGWindowID, spaceID: CGSSpaceID) {
+    private func moveWindowToSpace(windowID: CGWindowID, spaceID: CGSSpaceID) -> CGError {
         let connection = _CGSDefaultConnection()
-        CGSMoveWindowsToManagedSpace(connection, [windowID] as CFArray, spaceID)
+        return CGSMoveWindowsToManagedSpace(connection, [windowID] as CFArray, spaceID)
     }
     
     private func getAppMainWindow(_ app: NSRunningApplication) -> AXUIElement? {
@@ -222,6 +323,17 @@ class MenuBarController: NSObject {
     private func bringToFront(_ window: AXUIElement) {
         AXUIElementSetAttributeValue(window, kAXMainAttribute as CFString, kCFBooleanTrue)
         AXUIElementPerformAction(window, kAXRaiseAction as CFString)
+    }
+    
+    private func updateTerminalVisibilityState() {
+        let appName = settingsManager.getSelectedApp()
+        if let app = findRunningApp(appName) {
+            isTerminalVisible = isAppVisible(app)
+            logger.info("🔍 Initial terminal visibility state: \(isTerminalVisible)")
+        } else {
+            isTerminalVisible = false
+            logger.info("🔍 Terminal not running, setting visibility to false")
+        }
     }
     
     private func updateMenuBarIcon() {
