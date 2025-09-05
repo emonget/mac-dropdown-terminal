@@ -17,7 +17,6 @@ private func getVersionInfo() -> String {
     return "v\(version) (\(build)) - \(shortCommit)"
 }
 
-@main
 class AppDelegate: NSObject, NSApplicationDelegate {
     
     var menuBarController: MenuBarController!
