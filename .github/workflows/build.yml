@@ -40,6 +40,7 @@ jobs:
                    CODE_SIGN_IDENTITY="-" \
                    CODE_SIGNING_REQUIRED=NO \
                    CONFIGURATION_BUILD_DIR="./build/Release" \
+                   GIT_COMMIT="${{ github.sha }}" \
                    build
     
     - name: Verify built app

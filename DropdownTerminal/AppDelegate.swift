@@ -6,6 +6,17 @@ private func earlyStartupCheck() {
     print("🔧 DropdownTerminal main() called - app is starting")
 }
 
+// Get version information from bundle
+private func getVersionInfo() -> String {
+    let bundle = Bundle.main
+    let version = bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "unknown"
+    let build = bundle.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "unknown"
+    let commit = bundle.object(forInfoDictionaryKey: "GitCommit") as? String ?? "unknown"
+    
+    let shortCommit = String(commit.prefix(7))
+    return "v\(version) (\(build)) - \(shortCommit)"
+}
+
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
     
@@ -18,7 +29,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         print("🔧 AppDelegate init() called - very first step")
         super.init()
         print("🔧 AppDelegate init() completed")
+        
+        // Show version info
+        let version = getVersionInfo()
+        print("📦 DropdownTerminal \(version)")
         logger.info("🔧 AppDelegate initialized")
+        logger.info("📦 Version: \(version)")
         earlyStartupCheck()
     }
     
