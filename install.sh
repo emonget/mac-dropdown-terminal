@@ -28,8 +28,18 @@ echo "🔍 Checking for latest successful build..."
 
 # Get latest successful workflow run for the branch
 WORKFLOWS_API="https://api.github.com/repos/${REPO}/actions/runs"
-WORKFLOW_DATA=$(curl -fsSL "${WORKFLOWS_API}?branch=${BRANCH}&status=success&per_page=5")
-WORKFLOW_RUN=$(echo "$WORKFLOW_DATA" | grep -o '"id":[0-9]*' | head -1 | cut -d: -f2)
+
+# Get workflow run ID from successful build
+WORKFLOW_RUN=$(curl -fsSL "${WORKFLOWS_API}?branch=${BRANCH}&per_page=10" | \
+  sed -n '/"conclusion": "success"/{ N; N; N; N; N; N; N; N; N; N; s/.*"id": \([0-9]*\).*/\1/p; }' | head -1)
+
+# Fallback: try simpler parsing
+if [ -z "$WORKFLOW_RUN" ]; then
+  WORKFLOW_RUN=$(curl -fsSL "${WORKFLOWS_API}?branch=${BRANCH}&per_page=5" | \
+    grep -B20 '"conclusion": "success"' | \
+    grep '"id":' | head -1 | \
+    sed 's/.*"id": \([0-9]*\).*/\1/')
+fi
 
 if [ -z "$WORKFLOW_RUN" ]; then
   echo "❌ No successful builds found for branch '$BRANCH'"
