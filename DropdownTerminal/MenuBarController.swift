@@ -103,7 +103,10 @@ class MenuBarController: NSObject {
         
         if let app = findRunningApp(appName) {
             logger.info("📱 Found running app: \(app.localizedName ?? "Unknown")")
-            if isAppVisible(app) {
+            let wasVisible = isAppVisible(app)
+            logger.info("🔍 Current visibility state: \(wasVisible)")
+            
+            if wasVisible {
                 logger.info("👁️ App is visible, hiding it")
                 hideApp(app)
                 isTerminalVisible = false
@@ -118,6 +121,7 @@ class MenuBarController: NSObject {
             isTerminalVisible = true
         }
         
+        logger.info("🎯 Final state: isTerminalVisible = \(isTerminalVisible)")
         updateMenuBarIcon()
     }
     
@@ -145,27 +149,49 @@ class MenuBarController: NSObject {
     }
     
     private func isAppVisible(_ app: NSRunningApplication) -> Bool {
-        // Check if app is hidden
+        // Check if app is hidden at application level
         if app.isHidden {
+            logger.info("🙈 App is hidden at application level")
             return false
         }
         
-        // Check if app has visible windows
+        // Check if app is active (frontmost)
+        if app == NSWorkspace.shared.frontmostApplication {
+            logger.info("🎯 App is frontmost application")
+            return true
+        }
+        
+        // Check if app has visible windows using Accessibility API
         let appElement = AXUIElementCreateApplication(app.processIdentifier)
         var windowList: CFTypeRef?
         let result = AXUIElementCopyAttributeValue(appElement, kAXWindowsAttribute as CFString, &windowList)
         
         if result == .success, let windows = windowList as? [AXUIElement], !windows.isEmpty {
+            logger.info("🪟 Found \(windows.count) windows for app")
             // Check if any window is visible (not minimized)
-            for window in windows {
+            for (index, window) in windows.enumerated() {
                 var minimized: CFTypeRef?
                 let minResult = AXUIElementCopyAttributeValue(window, kAXMinimizedAttribute as CFString, &minimized)
-                if minResult == .success, let isMinimized = minimized as? Bool, !isMinimized {
-                    return true
+                
+                if minResult == .success, let isMinimized = minimized as? Bool {
+                    logger.info("📱 Window \(index): minimized = \(isMinimized)")
+                    if !isMinimized {
+                        // Also check if window is actually visible on screen
+                        var position: CFTypeRef?
+                        let posResult = AXUIElementCopyAttributeValue(window, kAXPositionAttribute as CFString, &position)
+                        if posResult == .success {
+                            return true
+                        }
+                    }
+                } else {
+                    logger.info("⚠️ Could not check minimized state for window \(index)")
                 }
             }
+        } else {
+            logger.info("❌ Could not get windows for app, result: \(result.rawValue)")
         }
         
+        logger.info("👻 No visible windows found")
         return false
     }
     
@@ -350,8 +376,7 @@ class MenuBarController: NSObject {
             return 
         }
         
-        let iconName = isTerminalVisible ? activeIcon : inactiveIcon
-        let image = NSImage(systemSymbolName: iconName, accessibilityDescription: nil)
+        let image = NSImage(systemSymbolName: "terminal", accessibilityDescription: nil)
         
         // Fallback to text if SF Symbols not available
         if image == nil {
@@ -362,10 +387,31 @@ class MenuBarController: NSObject {
             print("📱 Menu bar icon: \(title) (text fallback)")
         } else {
             image?.size = NSSize(width: 18, height: 18)
-            button.image = image
+            
+            if isTerminalVisible {
+                // Active state: Blue terminal icon with slight glow
+                let activeImage = image?.copy() as? NSImage
+                activeImage?.lockFocus()
+                
+                // Create blue version
+                NSColor.systemBlue.setFill()
+                let rect = NSRect(origin: .zero, size: image?.size ?? .zero)
+                rect.fill(using: .sourceAtop)
+                
+                activeImage?.unlockFocus()
+                activeImage?.isTemplate = false
+                
+                button.image = activeImage
+                logger.info("🔵 Active terminal icon (blue)")
+            } else {
+                // Inactive state: Standard template icon (follows system theme)
+                image?.isTemplate = true
+                button.image = image
+                logger.info("⚪ Inactive terminal icon (template)")
+            }
+            
             button.title = ""
-            logger.info("🖼️ Using SF Symbol icon: \(iconName)")
-            print("📱 Menu bar icon: \(iconName) (SF Symbol)")
+            print("📱 Menu bar icon: terminal (\(isTerminalVisible ? "active-blue" : "inactive-template"))")
         }
     }
     
@@ -377,12 +423,8 @@ class MenuBarController: NSObject {
         alert.informativeText = """
         A macOS menu bar app for Guake-style terminal toggling.
         
-        Version: \(versionInfo.version)
-        Build: \(versionInfo.build)
-        Build Date: \(versionInfo.buildDate)
+        Build Timestamp: \(versionInfo.buildDate)
         Commit: \(versionInfo.commit)
-        
-        © 2024 DropdownTerminal
         """
         
         alert.addButton(withTitle: "OK")
@@ -395,45 +437,38 @@ class MenuBarController: NSObject {
         let version = bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
         let build = bundle.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "1"
         var commit = bundle.object(forInfoDictionaryKey: "GitCommit") as? String ?? "Unknown"
-        var buildDate = bundle.object(forInfoDictionaryKey: "BuildDate") as? String ?? "Unknown"
+        var buildDate = bundle.object(forInfoDictionaryKey: "BuildTimestamp") as? String ?? "Unknown"
         
-        // Try to read build-info.txt from Resources folder (created by CI/CD)
-        if let buildInfoPath = bundle.path(forResource: "build-info", ofType: "txt"),
-           let buildInfoContent = try? String(contentsOfFile: buildInfoPath) {
+        // If no timestamp, try other sources
+        if buildDate == "Unknown" {
+            buildDate = bundle.object(forInfoDictionaryKey: "BuildDate") as? String ?? "Unknown"
             
-            let lines = buildInfoContent.components(separatedBy: .newlines)
-            for line in lines {
-                if line.hasPrefix("Commit: ") && commit == "Unknown" {
-                    commit = String(line.dropFirst("Commit: ".count))
-                    // Truncate commit to first 8 characters for display
-                    if commit.count > 8 {
-                        commit = String(commit.prefix(8))
+            // Try to read build-info.txt from Resources folder (created by CI/CD)
+            if buildDate == "Unknown", let buildInfoPath = bundle.path(forResource: "build-info", ofType: "txt"),
+               let buildInfoContent = try? String(contentsOfFile: buildInfoPath) {
+                
+                let lines = buildInfoContent.components(separatedBy: .newlines)
+                for line in lines {
+                    if line.hasPrefix("Commit: ") && commit == "Unknown" {
+                        commit = String(line.dropFirst("Commit: ".count))
+                    } else if line.hasPrefix("Built: ") {
+                        buildDate = String(line.dropFirst("Built: ".count))
                     }
-                } else if line.hasPrefix("Built: ") {
-                    let builtDateString = String(line.dropFirst("Built: ".count))
-                    buildDate = formatBuildDate(builtDateString)
+                }
+            }
+            
+            // Final fallback: Get timestamp from bundle creation date
+            if buildDate == "Unknown" {
+                if let bundlePath = bundle.bundlePath as NSString?,
+                   let attributes = try? FileManager.default.attributesOfItem(atPath: bundlePath as String),
+                   let creationDate = attributes[.creationDate] as? Date {
+                    let timestamp = Int64(creationDate.timeIntervalSince1970 * 1000)
+                    buildDate = String(timestamp)
                 }
             }
         }
         
-        // Format buildDate if we got it from Info.plist but it's not "Unknown"
-        if buildDate != "Unknown" && !buildDate.isEmpty {
-            buildDate = formatBuildDate(buildDate)
-        }
-        
-        // Final fallback: Get build date from bundle creation date
-        if buildDate == "Unknown" {
-            if let bundlePath = bundle.bundlePath as NSString?,
-               let attributes = try? FileManager.default.attributesOfItem(atPath: bundlePath as String),
-               let creationDate = attributes[.creationDate] as? Date {
-                let formatter = DateFormatter()
-                formatter.dateStyle = .medium
-                formatter.timeStyle = .short
-                buildDate = formatter.string(from: creationDate)
-            }
-        }
-        
-        // Truncate commit if it's still full length
+        // Truncate commit to first 8 characters for display
         if commit != "Unknown" && commit.count > 8 {
             commit = String(commit.prefix(8))
         }

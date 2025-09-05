@@ -26,17 +26,31 @@ command -v unzip >/dev/null 2>&1 || { echo "❌ unzip is required but not instal
 
 # Check currently installed version
 CURRENT_VERSION=""
+CURRENT_COMMIT=""
+CURRENT_TIMESTAMP=""
 if [ -d "${INSTALL_DIR}/${APP_NAME}.app" ]; then
     CURRENT_VERSION=$(defaults read "${INSTALL_DIR}/${APP_NAME}.app/Contents/Info.plist" CFBundleShortVersionString 2>/dev/null || echo "unknown")
-    if [ -n "$CURRENT_VERSION" ] && [ "$CURRENT_VERSION" != "unknown" ]; then
-        echo "📱 Currently installed version: $CURRENT_VERSION"
+    CURRENT_COMMIT=$(defaults read "${INSTALL_DIR}/${APP_NAME}.app/Contents/Info.plist" GitCommit 2>/dev/null || echo "unknown")
+    CURRENT_TIMESTAMP=$(defaults read "${INSTALL_DIR}/${APP_NAME}.app/Contents/Info.plist" BuildTimestamp 2>/dev/null || echo "unknown")
+    
+    if [ "$CURRENT_COMMIT" != "unknown" ] || [ "$CURRENT_TIMESTAMP" != "unknown" ]; then
+        echo "📱 Currently installed:"
+        if [ "$CURRENT_COMMIT" != "unknown" ]; then
+            # Truncate commit to 8 characters
+            CURRENT_COMMIT_SHORT=$(echo "$CURRENT_COMMIT" | cut -c1-8)
+            echo "   Commit: $CURRENT_COMMIT_SHORT"
+        fi
+        if [ "$CURRENT_TIMESTAMP" != "unknown" ]; then
+            echo "   Built: $CURRENT_TIMESTAMP"
+        fi
     else
-        echo "📱 DropdownTerminal is installed (version unknown)"
+        echo "📱 DropdownTerminal is installed (build info unknown)"
     fi
 else
     echo "📱 No existing installation found"
 fi
 
+# Get latest build info to compare with current installation
 echo "🔍 Checking for latest successful build..."
 
 # Get latest successful workflow run for the branch
@@ -75,6 +89,36 @@ fi
 # Create temporary directory
 TMP_DIR=$(mktemp -d)
 cd "$TMP_DIR"
+
+# Check if we need to update by comparing with remote build
+echo "🔍 Checking if update is needed..."
+
+# For dev branch, check the dev-build release info
+if [ "$BRANCH" = "dev" ]; then
+  # Get release info for dev-build
+  RELEASE_INFO=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/tags/dev-build" 2>/dev/null || echo "")
+  if [ -n "$RELEASE_INFO" ]; then
+    # Extract commit from release body or name
+    REMOTE_COMMIT=$(echo "$RELEASE_INFO" | sed -n 's/.*"target_commitish": "\([^"]*\)".*/\1/p' | head -1)
+    if [ -n "$REMOTE_COMMIT" ] && [ "$REMOTE_COMMIT" != "unknown" ]; then
+      REMOTE_COMMIT_SHORT=$(echo "$REMOTE_COMMIT" | cut -c1-8)
+      CURRENT_COMMIT_SHORT=$(echo "$CURRENT_COMMIT" | cut -c1-8)
+      
+      if [ "$CURRENT_COMMIT_SHORT" = "$REMOTE_COMMIT_SHORT" ] && [ "$CURRENT_COMMIT" != "unknown" ]; then
+        echo "✅ Already up to date!"
+        echo "   Current: $CURRENT_COMMIT_SHORT"
+        echo "   Remote:  $REMOTE_COMMIT_SHORT"
+        echo ""
+        echo "🎯 Launch: open '$INSTALL_DIR/$APP_NAME.app'"
+        exit 0
+      fi
+      
+      echo "📋 Update available:"
+      echo "   Current: $CURRENT_COMMIT_SHORT"
+      echo "   Remote:  $REMOTE_COMMIT_SHORT"
+    fi
+  fi
+fi
 
 echo "⬇️  Downloading latest build..."
 if [ "$BRANCH" = "dev" ]; then
@@ -127,15 +171,38 @@ rm -rf "$TMP_DIR"
 echo ""
 # Show version info after installation
 NEW_VERSION=$(defaults read "${INSTALL_DIR}/${APP_NAME}.app/Contents/Info.plist" CFBundleShortVersionString 2>/dev/null || echo "unknown")
+NEW_COMMIT=$(defaults read "${INSTALL_DIR}/${APP_NAME}.app/Contents/Info.plist" GitCommit 2>/dev/null || echo "unknown")
+NEW_TIMESTAMP=$(defaults read "${INSTALL_DIR}/${APP_NAME}.app/Contents/Info.plist" BuildTimestamp 2>/dev/null || echo "unknown")
+
 echo "✅ $APP_NAME installed successfully to $INSTALL_DIR!"
-if [ -n "$CURRENT_VERSION" ] && [ "$CURRENT_VERSION" != "unknown" ] && [ "$NEW_VERSION" != "unknown" ]; then
-    if [ "$CURRENT_VERSION" != "$NEW_VERSION" ]; then
-        echo "📈 Updated from version $CURRENT_VERSION to $NEW_VERSION"
+
+# Show detailed comparison
+if [ "$CURRENT_COMMIT" != "unknown" ] || [ "$CURRENT_TIMESTAMP" != "unknown" ]; then
+    if [ "$CURRENT_COMMIT" != "$NEW_COMMIT" ] || [ "$CURRENT_TIMESTAMP" != "$NEW_TIMESTAMP" ]; then
+        echo "📈 Updated:"
+        if [ "$CURRENT_COMMIT" != "unknown" ]; then
+            echo "   From: $(echo "$CURRENT_COMMIT" | cut -c1-8)"
+        fi
+        if [ "$CURRENT_TIMESTAMP" != "unknown" ]; then
+            echo "         $CURRENT_TIMESTAMP"
+        fi
+        if [ "$NEW_COMMIT" != "unknown" ]; then
+            echo "   To:   $(echo "$NEW_COMMIT" | cut -c1-8)"
+        fi
+        if [ "$NEW_TIMESTAMP" != "unknown" ]; then
+            echo "         $NEW_TIMESTAMP"
+        fi
     else
-        echo "🔄 Reinstalled version $NEW_VERSION"
+        echo "🔄 Reinstalled same build"
     fi
-elif [ "$NEW_VERSION" != "unknown" ]; then
-    echo "🆕 Installed version $NEW_VERSION"
+else
+    echo "🆕 Installed:"
+    if [ "$NEW_COMMIT" != "unknown" ]; then
+        echo "   Commit: $(echo "$NEW_COMMIT" | cut -c1-8)"
+    fi
+    if [ "$NEW_TIMESTAMP" != "unknown" ]; then
+        echo "   Built: $NEW_TIMESTAMP"
+    fi
 fi
 echo ""
 echo "🚨 Important: Grant accessibility permissions when prompted"

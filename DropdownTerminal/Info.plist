@@ -24,6 +24,8 @@
 	<string>$(GIT_COMMIT)</string>
 	<key>BuildDate</key>
 	<string>$(BUILD_DATE)</string>
+	<key>BuildTimestamp</key>
+	<string>$(BUILD_TIMESTAMP)</string>
 	<key>LSUIElement</key>
 	<true/>
 	<key>NSPrincipalClass</key>
