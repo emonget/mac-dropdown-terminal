@@ -55,6 +55,13 @@ jobs:
           exit 1
         fi
     
+    - name: Add build info to app
+      run: |
+        echo "Commit: ${{ github.sha }}" > ./build/Release/DropdownTerminal.app/Contents/Resources/build-info.txt
+        echo "Built: $(date -u)" >> ./build/Release/DropdownTerminal.app/Contents/Resources/build-info.txt
+        echo "Branch: dev" >> ./build/Release/DropdownTerminal.app/Contents/Resources/build-info.txt
+        echo "Run: ${{ github.run_number }}" >> ./build/Release/DropdownTerminal.app/Contents/Resources/build-info.txt
+        
     - name: Create DMG
       run: |
         mkdir -p dmg
