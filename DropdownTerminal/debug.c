@@ -11,17 +11,18 @@
 __attribute__((constructor))
 void debug_init() {
     fprintf(stderr, "🚨 C CONSTRUCTOR: App binary loaded\n");
-    fprintf(stderr, "📦 BUILD INFO: Commit %s\n", GIT_COMMIT);
     fflush(stderr);
     
-    // Also try to read from bundle
+    // Read version info from bundle
     CFBundleRef bundle = CFBundleGetMainBundle();
     if (bundle) {
         CFStringRef commit = CFBundleGetValueForInfoDictionaryKey(bundle, CFSTR("GitCommit"));
         if (commit) {
             char commitStr[64];
             CFStringGetCString(commit, commitStr, sizeof(commitStr), kCFStringEncodingUTF8);
-            fprintf(stderr, "📦 BUNDLE INFO: Commit %s\n", commitStr);
+            fprintf(stderr, "📦 BUNDLE INFO: Commit %.7s\n", commitStr);
+        } else {
+            fprintf(stderr, "📦 BUNDLE INFO: No GitCommit found\n");
         }
         
         CFStringRef version = CFBundleGetValueForInfoDictionaryKey(bundle, CFSTR("CFBundleShortVersionString"));
@@ -30,6 +31,8 @@ void debug_init() {
             CFStringGetCString(version, versionStr, sizeof(versionStr), kCFStringEncodingUTF8);
             fprintf(stderr, "📦 BUNDLE INFO: Version %s\n", versionStr);
         }
+    } else {
+        fprintf(stderr, "📦 BUNDLE INFO: Could not get main bundle\n");
     }
     fflush(stderr);
 }
