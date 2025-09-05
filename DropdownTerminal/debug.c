@@ -1,10 +1,36 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <dlfcn.h>
+#include <CoreFoundation/CoreFoundation.h>
+
+// Build-time version info (injected by build system)
+#ifndef GIT_COMMIT
+#define GIT_COMMIT "unknown"
+#endif
 
 __attribute__((constructor))
 void debug_init() {
     fprintf(stderr, "🚨 C CONSTRUCTOR: App binary loaded\n");
+    fprintf(stderr, "📦 BUILD INFO: Commit %s\n", GIT_COMMIT);
+    fflush(stderr);
+    
+    // Also try to read from bundle
+    CFBundleRef bundle = CFBundleGetMainBundle();
+    if (bundle) {
+        CFStringRef commit = CFBundleGetValueForInfoDictionaryKey(bundle, CFSTR("GitCommit"));
+        if (commit) {
+            char commitStr[64];
+            CFStringGetCString(commit, commitStr, sizeof(commitStr), kCFStringEncodingUTF8);
+            fprintf(stderr, "📦 BUNDLE INFO: Commit %s\n", commitStr);
+        }
+        
+        CFStringRef version = CFBundleGetValueForInfoDictionaryKey(bundle, CFSTR("CFBundleShortVersionString"));
+        if (version) {
+            char versionStr[32];
+            CFStringGetCString(version, versionStr, sizeof(versionStr), kCFStringEncodingUTF8);
+            fprintf(stderr, "📦 BUNDLE INFO: Version %s\n", versionStr);
+        }
+    }
     fflush(stderr);
 }
 
