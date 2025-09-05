@@ -68,6 +68,12 @@ class MenuBarController: NSObject {
         
         menu.addItem(NSMenuItem.separator())
         
+        let aboutItem = NSMenuItem(title: "About", action: #selector(showAbout), keyEquivalent: "")
+        aboutItem.target = self
+        menu.addItem(aboutItem)
+        
+        menu.addItem(NSMenuItem.separator())
+        
         let quitItem = NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: "q")
         quitItem.target = self
         menu.addItem(quitItem)
@@ -359,6 +365,112 @@ class MenuBarController: NSObject {
             logger.info("🖼️ Using SF Symbol icon: \(iconName)")
             print("📱 Menu bar icon: \(iconName) (SF Symbol)")
         }
+    }
+    
+    @objc private func showAbout() {
+        let alert = NSAlert()
+        alert.messageText = "DropdownTerminal"
+        
+        let versionInfo = getVersionInfo()
+        alert.informativeText = """
+        A macOS menu bar app for Guake-style terminal toggling.
+        
+        Version: \(versionInfo.version)
+        Build: \(versionInfo.build)
+        Build Date: \(versionInfo.buildDate)
+        Commit: \(versionInfo.commit)
+        
+        © 2024 DropdownTerminal
+        """
+        
+        alert.addButton(withTitle: "OK")
+        alert.runModal()
+    }
+    
+    private func getVersionInfo() -> (version: String, build: String, buildDate: String, commit: String) {
+        let bundle = Bundle.main
+        
+        let version = bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
+        let build = bundle.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "1"
+        var commit = bundle.object(forInfoDictionaryKey: "GitCommit") as? String ?? "Unknown"
+        var buildDate = bundle.object(forInfoDictionaryKey: "BuildDate") as? String ?? "Unknown"
+        
+        // Try to read build-info.txt from Resources folder (created by CI/CD)
+        if let buildInfoPath = bundle.path(forResource: "build-info", ofType: "txt"),
+           let buildInfoContent = try? String(contentsOfFile: buildInfoPath) {
+            
+            let lines = buildInfoContent.components(separatedBy: .newlines)
+            for line in lines {
+                if line.hasPrefix("Commit: ") && commit == "Unknown" {
+                    commit = String(line.dropFirst("Commit: ".count))
+                    // Truncate commit to first 8 characters for display
+                    if commit.count > 8 {
+                        commit = String(commit.prefix(8))
+                    }
+                } else if line.hasPrefix("Built: ") {
+                    let builtDateString = String(line.dropFirst("Built: ".count))
+                    buildDate = formatBuildDate(builtDateString)
+                }
+            }
+        }
+        
+        // Format buildDate if we got it from Info.plist but it's not "Unknown"
+        if buildDate != "Unknown" && !buildDate.isEmpty {
+            buildDate = formatBuildDate(buildDate)
+        }
+        
+        // Final fallback: Get build date from bundle creation date
+        if buildDate == "Unknown" {
+            if let bundlePath = bundle.bundlePath as NSString?,
+               let attributes = try? FileManager.default.attributesOfItem(atPath: bundlePath as String),
+               let creationDate = attributes[.creationDate] as? Date {
+                let formatter = DateFormatter()
+                formatter.dateStyle = .medium
+                formatter.timeStyle = .short
+                buildDate = formatter.string(from: creationDate)
+            }
+        }
+        
+        // Truncate commit if it's still full length
+        if commit != "Unknown" && commit.count > 8 {
+            commit = String(commit.prefix(8))
+        }
+        
+        return (version: version, build: build, buildDate: buildDate, commit: commit)
+    }
+    
+    private func formatBuildDate(_ dateString: String) -> String {
+        // Handle ISO date format from CI (e.g., "2024-01-01 12:00:00 +0000")
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        
+        if let date = formatter.date(from: dateString) {
+            let displayFormatter = DateFormatter()
+            displayFormatter.dateStyle = .medium
+            displayFormatter.timeStyle = .short
+            return displayFormatter.string(from: date)
+        }
+        
+        // If ISO format fails, try other common formats
+        let commonFormats = [
+            "yyyy-MM-dd HH:mm:ss Z",
+            "EEE MMM d HH:mm:ss yyyy",
+            "yyyy-MM-dd'T'HH:mm:ss'Z'"
+        ]
+        
+        for format in commonFormats {
+            let testFormatter = DateFormatter()
+            testFormatter.dateFormat = format
+            if let date = testFormatter.date(from: dateString) {
+                let displayFormatter = DateFormatter()
+                displayFormatter.dateStyle = .medium
+                displayFormatter.timeStyle = .short
+                return displayFormatter.string(from: date)
+            }
+        }
+        
+        // If all else fails, return the original string
+        return dateString
     }
     
     @objc private func showAppSelection() {

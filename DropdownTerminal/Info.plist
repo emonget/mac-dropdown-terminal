@@ -22,6 +22,8 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>GitCommit</key>
 	<string>$(GIT_COMMIT)</string>
+	<key>BuildDate</key>
+	<string>$(BUILD_DATE)</string>
 	<key>LSUIElement</key>
 	<true/>
 	<key>NSPrincipalClass</key>

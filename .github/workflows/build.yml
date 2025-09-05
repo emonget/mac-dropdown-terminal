@@ -41,6 +41,7 @@ jobs:
                    CODE_SIGNING_REQUIRED=NO \
                    CONFIGURATION_BUILD_DIR="./build/Release" \
                    GIT_COMMIT="${{ github.sha }}" \
+                   BUILD_DATE="$(date -u)" \
                    build
     
     - name: Verify built app
