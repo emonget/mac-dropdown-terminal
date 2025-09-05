@@ -175,8 +175,10 @@ class MenuBarController: NSObject {
         // First, get all windows for this app and move them to current space
         moveAppWindowsToCurrentSpace(app)
         
-        // Then activate the app without switching spaces
-        app.activate(options: [.activateIgnoringOtherApps])
+        // Don't activate the app - just unhide it and bring windows to front
+        if app.isHidden {
+            app.unhide()
+        }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             if let window = self.getAppMainWindow(app) {
