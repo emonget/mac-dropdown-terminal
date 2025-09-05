@@ -23,6 +23,7 @@ class MenuBarController: NSObject {
     private var statusItem: NSStatusItem!
     private var settingsManager: SettingsManager!
     private var isTerminalVisible = false
+    private var contextMenu: NSMenu!
     
     private let activeIcon = "terminal.badge.plus"
     private let inactiveIcon = "terminal"
@@ -70,7 +71,9 @@ class MenuBarController: NSObject {
         quitItem.target = self
         menu.addItem(quitItem)
         
-        statusItem.menu = menu
+        // Store menu separately - don't assign to statusItem.menu
+        // We'll show it manually on right-click only
+        self.contextMenu = menu
     }
     
     @objc private func statusBarButtonClicked(_ sender: NSStatusBarButton) {
@@ -79,7 +82,7 @@ class MenuBarController: NSObject {
         if event.type == .rightMouseUp {
             logger.info("🖱️ Right-click detected - showing context menu")
             print("🖱️ Right-click: Opening settings menu")
-            statusItem.menu?.popUp(positioning: nil, at: NSPoint(x: 0, y: 0), in: sender)
+            contextMenu.popUp(positioning: nil, at: NSPoint(x: 0, y: 0), in: sender)
         } else {
             logger.info("🖱️ Left-click detected - toggling terminal")
             print("🖱️ Left-click: Toggling terminal")
