@@ -52,7 +52,7 @@ echo "📦 Found build ID: $WORKFLOW_RUN"
 # Get download URL for artifacts
 ARTIFACTS_API="https://api.github.com/repos/${REPO}/actions/runs/${WORKFLOW_RUN}/artifacts"
 DOWNLOAD_URL=$(curl -fsSL "$ARTIFACTS_API" | \
-  grep -o '"archive_download_url":"[^"]*' | cut -d'"' -f4 | head -1)
+  sed -n 's/.*"archive_download_url": "\([^"]*\)".*/\1/p' | head -1)
 
 if [ -z "$DOWNLOAD_URL" ]; then
   echo "❌ No artifacts found for this build"
