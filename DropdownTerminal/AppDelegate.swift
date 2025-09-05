@@ -26,16 +26,32 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private let logger = Logger(subsystem: "com.dropdownterminal.DropdownTerminal", category: "AppDelegate")
     
     override init() {
+        // Force immediate output to stderr
+        fputs("🚨 INIT START - AppDelegate init() called\n", stderr)
+        fflush(stderr)
+        
         print("🔧 AppDelegate init() called - very first step")
+        fflush(stdout)
+        
         super.init()
+        
+        fputs("🚨 INIT MIDDLE - super.init() completed\n", stderr)
+        fflush(stderr)
+        
         print("🔧 AppDelegate init() completed")
+        fflush(stdout)
         
         // Show version info
         let version = getVersionInfo()
         print("📦 DropdownTerminal \(version)")
+        fflush(stdout)
+        
         logger.info("🔧 AppDelegate initialized")
         logger.info("📦 Version: \(version)")
         earlyStartupCheck()
+        
+        fputs("🚨 INIT END - AppDelegate init() finished\n", stderr)
+        fflush(stderr)
     }
     
     func applicationWillFinishLaunching(_ notification: Notification) {
