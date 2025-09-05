@@ -28,8 +28,8 @@ echo "🔍 Checking for latest successful build..."
 
 # Get latest successful workflow run for the branch
 WORKFLOWS_API="https://api.github.com/repos/${REPO}/actions/runs"
-WORKFLOW_RUN=$(curl -fsSL "${WORKFLOWS_API}?branch=${BRANCH}&status=success&per_page=1" | \
-  grep -o '"id":[0-9]*' | head -1 | cut -d: -f2)
+WORKFLOW_DATA=$(curl -fsSL "${WORKFLOWS_API}?branch=${BRANCH}&status=success&per_page=5")
+WORKFLOW_RUN=$(echo "$WORKFLOW_DATA" | grep -o '"id":[0-9]*' | head -1 | cut -d: -f2)
 
 if [ -z "$WORKFLOW_RUN" ]; then
   echo "❌ No successful builds found for branch '$BRANCH'"
