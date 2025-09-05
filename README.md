@@ -14,7 +14,19 @@ A macOS menu bar application that provides Guake-style terminal toggling functio
 
 ## Installation
 
-### From Release (Recommended)
+### One-Line Install (Recommended)
+
+Install the latest dev build directly:
+```bash
+curl -fsSL https://raw.githubusercontent.com/emonget/mac-dropdown-terminal/dev/install.sh | sh
+```
+
+Install from main branch:
+```bash
+curl -fsSL https://raw.githubusercontent.com/emonget/mac-dropdown-terminal/dev/install.sh | sh -s main
+```
+
+### From Release
 
 1. Download the latest `DropdownTerminal.dmg` from the [Releases](https://github.com/YOUR_USERNAME/mac-dropdown-terminal/releases) page
 2. Mount the DMG and drag DropdownTerminal.app to your Applications folder
