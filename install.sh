@@ -24,6 +24,19 @@ fi
 command -v curl >/dev/null 2>&1 || { echo "❌ curl is required but not installed"; exit 1; }
 command -v unzip >/dev/null 2>&1 || { echo "❌ unzip is required but not installed"; exit 1; }
 
+# Check currently installed version
+CURRENT_VERSION=""
+if [ -d "${INSTALL_DIR}/${APP_NAME}.app" ]; then
+    CURRENT_VERSION=$(defaults read "${INSTALL_DIR}/${APP_NAME}.app/Contents/Info.plist" CFBundleShortVersionString 2>/dev/null || echo "unknown")
+    if [ -n "$CURRENT_VERSION" ] && [ "$CURRENT_VERSION" != "unknown" ]; then
+        echo "📱 Currently installed version: $CURRENT_VERSION"
+    else
+        echo "📱 DropdownTerminal is installed (version unknown)"
+    fi
+else
+    echo "📱 No existing installation found"
+fi
+
 echo "🔍 Checking for latest successful build..."
 
 # Get latest successful workflow run for the branch
@@ -112,7 +125,18 @@ cd /
 rm -rf "$TMP_DIR"
 
 echo ""
+# Show version info after installation
+NEW_VERSION=$(defaults read "${INSTALL_DIR}/${APP_NAME}.app/Contents/Info.plist" CFBundleShortVersionString 2>/dev/null || echo "unknown")
 echo "✅ $APP_NAME installed successfully to $INSTALL_DIR!"
+if [ -n "$CURRENT_VERSION" ] && [ "$CURRENT_VERSION" != "unknown" ] && [ "$NEW_VERSION" != "unknown" ]; then
+    if [ "$CURRENT_VERSION" != "$NEW_VERSION" ]; then
+        echo "📈 Updated from version $CURRENT_VERSION to $NEW_VERSION"
+    else
+        echo "🔄 Reinstalled version $NEW_VERSION"
+    fi
+elif [ "$NEW_VERSION" != "unknown" ]; then
+    echo "🆕 Installed version $NEW_VERSION"
+fi
 echo ""
 echo "🚨 Important: Grant accessibility permissions when prompted"
 echo "   System Preferences → Security & Privacy → Privacy → Accessibility"
