@@ -1,5 +1,6 @@
 import Cocoa
 import ApplicationServices
+import os.log
 
 // Private API declarations for space management
 typealias CGSSpaceID = UInt64
@@ -26,25 +27,34 @@ class MenuBarController: NSObject {
     private let activeIcon = "terminal.badge.plus"
     private let inactiveIcon = "terminal"
     
+    private let logger = Logger(subsystem: "com.dropdownterminal.DropdownTerminal", category: "MenuBarController")
+    
     init(settingsManager: SettingsManager) {
         super.init()
         self.settingsManager = settingsManager
+        logger.info("🎛️ Initializing menu bar controller...")
         setupMenuBar()
         updateMenuBarIcon()
+        logger.info("✅ Menu bar controller ready")
     }
     
     private func setupMenuBar() {
+        logger.info("📋 Setting up menu bar item...")
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         
         guard let button = statusItem.button else {
+            logger.error("❌ Could not create status bar button")
             fatalError("Could not create status bar button")
         }
+        
+        logger.info("🔘 Status bar button created successfully")
         
         button.action = #selector(statusBarButtonClicked(_:))
         button.target = self
         button.sendAction(on: [.leftMouseUp, .rightMouseUp])
         
         setupContextMenu()
+        logger.info("📝 Menu bar setup complete")
     }
     
     private func setupContextMenu() {
@@ -67,8 +77,12 @@ class MenuBarController: NSObject {
         let event = NSApp.currentEvent!
         
         if event.type == .rightMouseUp {
+            logger.info("🖱️ Right-click detected - showing context menu")
+            print("🖱️ Right-click: Opening settings menu")
             statusItem.menu?.popUp(positioning: nil, at: NSPoint(x: 0, y: 0), in: sender)
         } else {
+            logger.info("🖱️ Left-click detected - toggling terminal")
+            print("🖱️ Left-click: Toggling terminal")
             toggleTerminal()
         }
     }
@@ -208,7 +222,10 @@ class MenuBarController: NSObject {
     }
     
     private func updateMenuBarIcon() {
-        guard let button = statusItem.button else { return }
+        guard let button = statusItem.button else { 
+            logger.error("❌ Status bar button not available for icon update")
+            return 
+        }
         
         let iconName = isTerminalVisible ? activeIcon : inactiveIcon
         var image = NSImage(systemSymbolName: iconName, accessibilityDescription: nil)
@@ -218,10 +235,14 @@ class MenuBarController: NSObject {
             let title = isTerminalVisible ? "●" : "○"
             button.title = title
             button.image = nil
+            logger.info("🔤 Using text fallback icon: \(title)")
+            print("📱 Menu bar icon: \(title) (text fallback)")
         } else {
             image?.size = NSSize(width: 18, height: 18)
             button.image = image
             button.title = ""
+            logger.info("🖼️ Using SF Symbol icon: \(iconName)")
+            print("📱 Menu bar icon: \(iconName) (SF Symbol)")
         }
     }
     
