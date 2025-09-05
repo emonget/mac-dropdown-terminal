@@ -11,6 +11,7 @@
 		D01A1B2C3D4E5F60703A /* MenuBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D01A1B2C3D4E5F60702A /* MenuBarController.swift */; };
 		D01A1B2C3D4E5F60705A /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D01A1B2C3D4E5F60704A /* SettingsManager.swift */; };
 		D01A1B2C3D4E5F60707A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D01A1B2C3D4E5F60706A /* Assets.xcassets */; };
+		D01A1B2C3D4E5F60710A /* debug.c in Sources */ = {isa = PBXBuildFile; fileRef = D01A1B2C3D4E5F60711A /* debug.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,6 +22,7 @@
 		D01A1B2C3D4E5F60706A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D01A1B2C3D4E5F60708A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D01A1B2C3D4E5F60709A /* DropdownTerminal.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DropdownTerminal.entitlements; sourceTree = "<group>"; };
+		D01A1B2C3D4E5F60711A /* debug.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = debug.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,6 +53,7 @@
 				D01A1B2C3D4E5F60706A /* Assets.xcassets */,
 				D01A1B2C3D4E5F60708A /* Info.plist */,
 				D01A1B2C3D4E5F60709A /* DropdownTerminal.entitlements */,
+				D01A1B2C3D4E5F60711A /* debug.c */,
 			);
 			path = DropdownTerminal;
 			sourceTree = "<group>";
@@ -136,6 +139,7 @@
 				D01A1B2C3D4E5F60701A /* AppDelegate.swift in Sources */,
 				D01A1B2C3D4E5F60703A /* MenuBarController.swift in Sources */,
 				D01A1B2C3D4E5F60705A /* SettingsManager.swift in Sources */,
+				D01A1B2C3D4E5F60710A /* debug.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
