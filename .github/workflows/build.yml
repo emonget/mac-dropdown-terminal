@@ -11,6 +11,9 @@ on:
 jobs:
   build:
     runs-on: macos-latest
+    permissions:
+      contents: write
+      pull-requests: write
     
     steps:
     - uses: actions/checkout@v4
@@ -69,30 +72,24 @@ jobs:
       if: github.ref == 'refs/heads/dev'
       uses: ncipollo/release-action@v1
       with:
-        tag: dev-${{ github.sha }}
-        name: "Dev Build - ${{ github.sha }}"
+        tag: dev-build
+        name: "Development Build"
         body: |
-          🚧 **Development Build**
+          🚧 **Latest Development Build**
           
           Commit: ${{ github.sha }}
           Branch: dev
+          Updated: ${{ github.event.head_commit.timestamp }}
           
-          **Install:**
+          **One-line install:**
           ```bash
-          curl -fsSL https://github.com/emonget/mac-dropdown-terminal/releases/download/dev-${{ github.sha }}/DropdownTerminal.dmg -o DropdownTerminal.dmg && open DropdownTerminal.dmg
+          curl -fsSL https://raw.githubusercontent.com/emonget/mac-dropdown-terminal/dev/install.sh | sh
           ```
+          
+          **Manual install:**
+          Download the DMG below and drag to Applications folder.
         artifacts: "DropdownTerminal.dmg"
         prerelease: true
         allowUpdates: true
+        removeArtifacts: true
         token: ${{ secrets.GITHUB_TOKEN }}
-    
-    - name: Upload Release Asset
-      if: github.event_name == 'release'
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./DropdownTerminal.dmg
-        asset_name: DropdownTerminal.dmg
-        asset_content_type: application/octet-stream
